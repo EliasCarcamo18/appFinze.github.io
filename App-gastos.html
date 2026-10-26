@@ -1,0 +1,1966 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0B0F19">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>FinanzApp - Control Financiero Inteligente</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js para Gráficos Financieros -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        fintech: {
+                            bg: '#0B0F19',
+                            card: '#151C2C',
+                            border: '#2A364F',
+                            accent: '#6366F1',
+                            neonGreen: '#10B981',
+                            neonPurple: '#A855F7',
+                            gold: '#F59E0B'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0B0F19; color: #F8FAFC; font-family: system-ui, -apple-system, sans-serif; user-select: none; transition: background-color 0.3s ease; }
+        
+        body.theme-light { background-color: #F1F5F9; color: #0F172A; }
+        body.theme-light .glass-card { background: rgba(255, 255, 255, 0.9); border-color: #CBD5E1; color: #0F172A; }
+        body.theme-light .text-white { color: #0F172A !important; }
+        body.theme-light .bg-slate-800 { background-color: #E2E8F0 !important; color: #0F172A !important; }
+        body.theme-light .bg-slate-900 { background-color: #FFFFFF !important; color: #0F172A !important; }
+
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+        .glass-card { background: rgba(21, 28, 44, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        .safe-pb { padding-bottom: max(5rem, env(safe-area-inset-bottom)); }
+        .safe-pt { padding-top: max(1rem, env(safe-area-inset-top)); }
+    </style>
+</head>
+<body class="min-h-screen text-slate-100 antialiased safe-pb">
+
+    <!-- CONTENEDOR PRINCIPAL MOBILE-FIRST -->
+    <div id="app" class="max-w-md mx-auto min-h-screen bg-[#0B0F19] shadow-2xl relative flex flex-col border-x border-slate-800 transition-all">
+
+        <!-- ==================== PANTALLA DE LOGIN / REGISTRO ==================== -->
+        <div id="auth-screen" class="p-6 flex flex-col justify-center min-h-screen safe-pt">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 rounded-2xl mx-auto flex items-center justify-center shadow-lg shadow-indigo-500/30 mb-3">
+                    <i class="fa-solid font-bold text-3xl text-white fa-wallet"></i>
+                </div>
+                <h1 class="text-2xl font-black tracking-tight text-white">FinanzApp</h1>
+                <p class="text-slate-400 text-xs mt-1">100% Privado • Control Multimoneda Segura</p>
+            </div>
+
+            <div class="flex bg-slate-800/80 p-1 rounded-xl mb-5 border border-slate-700">
+                <button onclick="switchAuthTab('login')" id="tab-login-btn" class="flex-1 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white transition-all">Iniciar Sesión</button>
+                <button onclick="switchAuthTab('register')" id="tab-register-btn" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-400 transition-all">Registrarse</button>
+            </div>
+
+            <!-- FORMULARIO LOGIN -->
+            <form id="login-form" onsubmit="handleLogin(event)" class="space-y-3.5">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Usuario o Correo</label>
+                    <input type="text" id="login-identifier" required class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500" placeholder="admin / usuario@correo.cl">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Contraseña</label>
+                    <input type="password" id="login-password" required class="w-full bg-slate-800/90 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-indigo-500" placeholder="••••••••">
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-600/30 text-xs">
+                    Ingresar a mis Finanzas
+                </button>
+
+                <div class="p-2.5 bg-indigo-950/40 border border-indigo-800/50 rounded-xl text-[10px] text-indigo-300 space-y-1">
+                    <span class="font-bold flex items-center gap-1 text-indigo-200">
+                        <i class="fa-solid fa-shield-halved"></i> Acceso Revisor Google / Admin:
+                    </span>
+                    <p>Usuario: <code class="bg-indigo-900/60 px-1 py-0.5 rounded text-white font-mono">admin</code> | Clave: <code class="bg-indigo-900/60 px-1 py-0.5 rounded text-white font-mono">admin123</code></p>
+                </div>
+            </form>
+
+            <!-- FORMULARIO REGISTRO -->
+            <form id="register-form" onsubmit="handleRegister(event)" class="space-y-2.5 hidden">
+                <input type="text" id="reg-name" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white" placeholder="Nombre Completo">
+                <input type="text" id="reg-rut" required oninput="formatRut(this)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white" placeholder="RUT Chileno / ID">
+                <input type="email" id="reg-email" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white" placeholder="Correo Electrónico">
+                <input type="text" id="reg-username" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white" placeholder="Nombre de Usuario">
+                <input type="password" id="reg-password" minlength="6" required class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white" placeholder="Contraseña">
+                
+                <div>
+                    <label class="block text-[10px] text-slate-400 mb-1">Moneda Principal</label>
+                    <select id="reg-currency" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold">
+                        <option value="CLP">CLP ($ Chile - Pesos)</option>
+                        <option value="USD">USD ($ Dólares Estadounidenses)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] text-slate-400 mb-1">Ingreso Mensual Líquido</label>
+                    <input type="text" id="reg-income" required oninput="formatLiveInput(this)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold" placeholder="Monto (ej: 1.200.000)">
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold py-2.5 rounded-xl transition-all shadow-lg text-xs mt-2">
+                    Crear Cuenta y Comenzar
+                </button>
+            </form>
+        </div>
+
+        <!-- ==================== DASHBOARD / APP PRINCIPAL ==================== -->
+        <div id="main-screen" class="hidden flex-1 flex flex-col pb-16">
+            <!-- HEADER PRINCIPAL -->
+            <header class="p-3.5 bg-slate-900/90 backdrop-blur border-b border-slate-800 flex justify-between items-center sticky top-0 z-30 safe-pt">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 bg-gradient-to-tr from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-black text-base shadow-lg" id="user-avatar">
+                        A
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <h2 class="font-bold text-xs text-white" id="user-display-name">Usuario</h2>
+                            <span id="plan-badge" class="px-2 py-0.5 text-[9px] font-black rounded-full uppercase border">
+                                Semilla (Gratis)
+                            </span>
+                        </div>
+                        <span class="text-[10px] text-slate-400 block" id="user-display-rut">RUT</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                    <button onclick="togglePrivacy()" title="Ocultar montos" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 flex items-center justify-center text-xs border border-slate-700">
+                        <i id="privacy-icon" class="fa-solid fa-eye"></i>
+                    </button>
+                    <input type="month" id="month-filter" onchange="renderAll()" class="bg-slate-800 border border-slate-700 rounded-lg px-2 py-1 text-[11px] text-white">
+                    <button onclick="handleLogout()" title="Cerrar Sesión" class="w-8 h-8 rounded-lg bg-rose-950/50 hover:bg-rose-900 text-rose-400 flex items-center justify-center text-xs border border-rose-800/50 transition-all">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- BASTIDOR MODO ADMIN -->
+            <div id="admin-panel-bar" class="bg-indigo-950/90 border-b border-indigo-700/50 p-2 px-4 flex justify-between items-center hidden">
+                <span class="text-[11px] font-bold text-indigo-200 flex items-center gap-1">
+                    <i class="fa-solid fa-user-gear text-amber-400"></i> Modo Administrador (Acceso Total Sin Restricciones)
+                </span>
+            </div>
+
+            <!-- ANUNCIO PATROCINADO (SOLO PLAN GRATIS) -->
+            <div id="free-ad-banner" class="m-3 mb-0 p-2.5 bg-slate-800/80 border border-dashed border-slate-700 rounded-xl flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-[9px] bg-slate-700 text-slate-400 px-1 rounded font-bold">ANUNCIO</span>
+                    <p class="text-[10px] text-slate-300">Descuento en tu seguro automotriz. <button onclick="openModal('modal-plans')" class="text-indigo-400 underline font-bold">Quitar Anuncios</button></p>
+                </div>
+            </div>
+
+            <!-- CONTENIDO PRINCIPAL -->
+            <main class="p-3.5 flex-1 space-y-4">
+
+                <!-- TARJETA PRINCIPAL DE RESUMEN DE SALDO -->
+                <section id="hero-card" class="glass-card p-4 rounded-2xl shadow-2xl relative overflow-hidden transition-all duration-300">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <span class="text-[11px] text-slate-300 font-medium block">Disponible Real Actual</span>
+                            <span class="text-2xl font-black text-white tracking-tight" id="disp-amount">$0</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] text-slate-400 block">Salud Financiera</span>
+                            <span id="health-score" class="text-base font-black text-emerald-400">85 / 100</span>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2 pt-2.5 mt-1 border-t border-slate-700/60">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">Gastos y Cuotas Pendientes</span>
+                            <span class="text-xs font-bold text-rose-400" id="pending-expenses-amount">$0</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">Límite Diario Seguro</span>
+                            <span class="text-xs font-bold text-emerald-400" id="daily-limit-amount">$0 / día</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- BANNER DE ALERTA DE DÉFICIT Y ASESORÍA IA EN TIEMPO REAL -->
+                <div id="deficit-alert-card" class="p-3.5 bg-rose-950/70 border border-rose-600/60 rounded-2xl space-y-2 hidden">
+                    <div class="flex items-center gap-2 text-rose-300 font-bold text-xs">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-400 text-base"></i>
+                        <span>¡Alerta! Tu saldo disponible es negativo</span>
+                    </div>
+                    <p id="deficit-text-detail" class="text-[11px] text-slate-200 leading-relaxed"></p>
+                    <div class="p-2.5 bg-slate-900/90 rounded-xl border border-rose-800/50 space-y-1">
+                        <span class="text-[10px] text-amber-400 font-bold flex items-center gap-1">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Solución Inteligente Recomendada por la IA:
+                        </span>
+                        <p id="deficit-ai-solution" class="text-[10px] text-slate-300"></p>
+                    </div>
+                </div>
+
+                <!-- NAVEGACIÓN DESLIZABLE DE SUB-MÓDULOS -->
+                <div id="horizontal-subnav" class="flex gap-1.5 overflow-x-auto hide-scrollbar pb-1">
+                    <button onclick="switchModule('gastos')" id="mod-btn-gastos" class="px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap bg-indigo-600 text-white shadow-lg">
+                        <i class="fa-solid fa-receipt mr-1"></i> Gastos
+                    </button>
+                    <button onclick="switchModule('bolsillos')" id="mod-btn-bolsillos" class="px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap bg-slate-800 text-slate-300 border border-slate-700">
+                        <i class="fa-solid fa-wallet mr-1"></i> Bolsillos
+                    </button>
+                    <button onclick="switchModule('deudas')" id="mod-btn-deudas" class="px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap bg-slate-800 text-slate-300 border border-slate-700">
+                        <i class="fa-solid fa-credit-card mr-1"></i> Deudas
+                    </button>
+                    <button onclick="switchModule('suscripciones')" id="mod-btn-suscripciones" class="px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-1">
+                        <i class="fa-solid fa-arrows-rotate"></i> Suscripciones <i id="lock-sub" class="fa-solid fa-lock text-[9px] text-amber-400 ml-0.5"></i>
+                    </button>
+                    <button onclick="switchModule('metas')" id="mod-btn-metas" class="px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap bg-slate-800 text-slate-300 border border-slate-700">
+                        <i class="fa-solid fa-bullseye mr-1"></i> Metas
+                    </button>
+                    <button onclick="switchModule('resumen')" id="mod-btn-resumen" class="px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap bg-slate-800 text-slate-300 border border-slate-700 flex items-center gap-1">
+                        <i class="fa-solid fa-chart-pie"></i> Resumen <i id="lock-resumen" class="fa-solid fa-lock text-[9px] text-amber-400 ml-0.5"></i>
+                    </button>
+                </div>
+
+                <!-- ==================== MÓDULO GASTOS ==================== -->
+                <div id="module-gastos" class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Cuentas y Gastos Fijos</h3>
+                        <button onclick="saveGastoCheckLimit()" class="px-2.5 py-1 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow flex items-center gap-1">
+                            <i class="fa-solid fa-plus text-[10px]"></i> Añadir Gasto
+                        </button>
+                    </div>
+                    <div id="gastos-list" class="space-y-2"></div>
+                </div>
+
+                <!-- ==================== MÓDULO BOLSILLOS ==================== -->
+                <div id="module-bolsillos" class="space-y-3 hidden">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Mis Bolsillos y Cuentas</h3>
+                            <p class="text-[9px] text-emerald-400">Control manual sin claves bancarias</p>
+                        </div>
+                        <button onclick="openModal('modal-add-bolsillo')" class="px-2.5 py-1 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow flex items-center gap-1">
+                            <i class="fa-solid fa-plus text-[10px]"></i> Nuevo Bolsillo
+                        </button>
+                    </div>
+                    <div id="bolsillos-list" class="space-y-2"></div>
+                </div>
+
+                <!-- ==================== MÓDULO DEUDAS ==================== -->
+                <div id="module-deudas" class="space-y-3 hidden">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Tarjetas y Créditos</h3>
+                            <p class="text-[9px] text-amber-400">Pagar la cuota la marcará como realizada y descontará tu saldo</p>
+                        </div>
+                        <button onclick="openModal('modal-add-deuda')" class="px-2.5 py-1 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow flex items-center gap-1">
+                            <i class="fa-solid fa-plus text-[10px]"></i> Registrar Deuda
+                        </button>
+                    </div>
+                    <div id="deudas-list" class="space-y-2.5"></div>
+                </div>
+
+                <!-- ==================== MÓDULO SUSCRIPCIONES ==================== -->
+                <div id="module-suscripciones" class="space-y-3 hidden">
+                    <div class="flex justify-between items-center">
+                        <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Suscripciones Recurrentes</h3>
+                        <button onclick="openModal('modal-add-sub')" class="px-2.5 py-1 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow flex items-center gap-1">
+                            <i class="fa-solid fa-plus text-[10px]"></i> Nueva
+                        </button>
+                    </div>
+                    <div class="p-2.5 bg-slate-800 rounded-xl border border-slate-700 flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] text-slate-400 block">Impacto Anual Estimado</span>
+                            <span class="text-sm font-bold text-rose-400" id="sub-annual-total">$0 / año</span>
+                        </div>
+                        <i class="fa-solid fa-arrows-rotate text-indigo-400 text-lg"></i>
+                    </div>
+                    <div id="subs-list" class="space-y-2"></div>
+                </div>
+
+                <!-- ==================== MÓDULO METAS ==================== -->
+                <div id="module-metas" class="space-y-3 hidden">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Metas de Ahorro</h3>
+                            <p class="text-[9px] text-indigo-300">Aporta o salta tu ahorro según tu liquidez este mes</p>
+                        </div>
+                        <button onclick="saveMetaCheckLimit()" class="px-2.5 py-1 bg-indigo-600 text-white text-xs font-bold rounded-lg shadow flex items-center gap-1">
+                            <i class="fa-solid fa-plus text-[10px]"></i> Crear Meta
+                        </button>
+                    </div>
+                    <div id="metas-list" class="space-y-2.5"></div>
+                </div>
+
+                <!-- ==================== MÓDULO RESUMEN DEL MES Y SIMULACIÓN ==================== -->
+                <div id="module-resumen" class="space-y-3 hidden">
+                    <!-- BOTÓN DE SIMULACIÓN DE MES ANTERIOR -->
+                    <div class="p-3 bg-gradient-to-r from-purple-900/60 to-indigo-900/60 border border-purple-500/50 rounded-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-purple-300 block">PROBAR SIMULACIÓN</span>
+                            <h4 class="text-xs font-bold text-white">Ver Cierre del Mes Anterior (Septiembre 2026)</h4>
+                        </div>
+                        <button onclick="loadSimulatedMonth('2026-09')" class="px-3 py-1.5 bg-purple-600 hover:bg-purple-500 text-white font-bold rounded-lg text-xs shadow transition-all">
+                            Cargar Septiembre
+                        </button>
+                    </div>
+
+                    <!-- REPORTE DE EFICIENCIA CON GRÁFICO E IA -->
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-chart-pie text-indigo-400"></i> Eficiencia del Mes
+                            </h3>
+                            <span id="summary-month-label" class="text-[10px] font-bold text-indigo-300 uppercase">Septiembre 2026</span>
+                        </div>
+
+                        <!-- CANVAS DEL GRÁFICO DE BARRAS/DOUGHNUT -->
+                        <div class="relative h-48 w-full bg-slate-900/60 rounded-xl p-2 flex items-center justify-center">
+                            <canvas id="efficiencyChart"></canvas>
+                        </div>
+
+                        <!-- CONSEJO Y DIAGNÓSTICO IA DEL MES -->
+                        <div id="ai-monthly-feedback" class="p-3 rounded-xl border space-y-1.5"></div>
+                    </div>
+
+                    <!-- TABLA DETALLADA DE BALANCE -->
+                    <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+                                <i class="fa-solid fa-table-list text-indigo-400"></i> Balance Completo
+                            </h3>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-[11px] text-left text-slate-300">
+                                <thead class="bg-slate-900/80 text-slate-400 uppercase text-[9px] border-b border-slate-700">
+                                    <tr>
+                                        <th class="p-2">Concepto</th>
+                                        <th class="p-2 text-right">Monto</th>
+                                        <th class="p-2 text-center">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="monthly-summary-table-body" class="divide-y divide-slate-700/50"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MÓDULO IA INTERACTIVA CON OPCIONES RÁPIDAS ==================== -->
+                <div id="module-ia" class="space-y-3 hidden">
+                    <div class="bg-slate-800 p-3.5 rounded-xl border border-slate-700 space-y-3">
+                        <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+                            <i class="fa-solid fa-robot text-purple-400"></i> Asistente Financiero IA Interactiva
+                        </h3>
+                        <p class="text-[10px] text-slate-400">Escribe o selecciona opciones rápidas para crear automáticamente:</p>
+
+                        <div class="space-y-2 pt-1">
+                            <span class="text-[9px] font-bold text-indigo-300 uppercase block tracking-wider">Suscripciones Frecuentes:</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button onclick="quickFillIA('Suscripción', 'Netflix', 10790)" class="px-2 py-1 bg-slate-900 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-[10px]">Netflix ($10.790)</button>
+                                <button onclick="quickFillIA('Suscripción', 'Spotify', 4590)" class="px-2 py-1 bg-slate-900 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-[10px]">Spotify ($4.590)</button>
+                                <button onclick="quickFillIA('Suscripción', 'Disney+', 7900)" class="px-2 py-1 bg-slate-900 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-[10px]">Disney+ ($7.900)</button>
+                                <button onclick="quickFillIA('Suscripción', 'HBO Max', 6990)" class="px-2 py-1 bg-slate-900 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-[10px]">Max ($6.990)</button>
+                                <button onclick="quickFillIA('Suscripción', 'PedidosYa+', 4990)" class="px-2 py-1 bg-slate-900 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-[10px]">PedidosYa+ ($4.990)</button>
+                                <button onclick="quickFillIA('Suscripción', 'Amazon Prime', 5790)" class="px-2 py-1 bg-slate-900 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-[10px]">Amazon Prime ($5.790)</button>
+                            </div>
+
+                            <span class="text-[9px] font-bold text-indigo-300 uppercase block tracking-wider pt-1">Gastos Fijos y Hormiga:</span>
+                            <div class="flex flex-wrap gap-1.5">
+                                <button onclick="quickFillIA('Gasto', 'Supermercado', 150000)" class="px-2 py-1 bg-slate-900 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-[10px]">Supermercado ($150k)</button>
+                                <button onclick="quickFillIA('Gasto', 'Cuenta Luz', 35000)" class="px-2 py-1 bg-slate-900 hover:bg-slate-750 text-slate-200 border border-slate-700 rounded-lg text-[10px]">Cuenta Luz ($35k)</button>
+                                <button onclick="quickFillIA('Gasto', 'Salida Completo y Chatarra', 25000)" class="px-2 py-1 bg-slate-900 hover:bg-slate-750 text-rose-300 border border-rose-800/60 rounded-lg text-[10px]">Completo / Snacks ($25k)</button>
+                            </div>
+                        </div>
+
+                        <div class="flex gap-2 pt-2">
+                            <input type="text" id="ia-prompt" placeholder="Ej: crea un gasto de completo y snack por 12.000" class="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+                            <button onclick="processAIPrompt()" class="px-3.5 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-lg shadow transition-all">Enviar</button>
+                        </div>
+                        <div id="ia-response" class="p-3 bg-slate-900 rounded-xl border border-slate-800 text-xs text-slate-300 hidden"></div>
+                    </div>
+
+                    <!-- CALCULADORA HONORARIOS SII -->
+                    <div class="bg-slate-800 p-4 rounded-xl border border-amber-500/40 space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                            <h3 class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-file-invoice-dollar"></i> Calculadora Retención Boletas SII
+                            </h3>
+                            <span id="hon-badge" class="px-2 py-0.5 bg-amber-500/20 text-amber-300 text-[9px] font-black rounded-full">ÉLITE</span>
+                        </div>
+                        <div class="space-y-2 text-xs">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">Monto Bruto Boleta de Honorarios</label>
+                                <input type="text" id="hon-bruto" oninput="formatLiveInput(this); calcHonorarios();" placeholder="500.000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold">
+                            </div>
+                            <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-700/60">
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block">Retención SII (13.75%)</span>
+                                    <span id="hon-retencion" class="font-bold text-rose-400">$0</span>
+                                </div>
+                                <div>
+                                    <span class="text-[10px] text-slate-400 block">Líquido A Recibir</span>
+                                    <span id="hon-liquido" class="font-black text-emerald-400 text-sm">$0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== MÓDULO CONFIGURACIÓN ==================== -->
+                <div id="module-configuracion" class="space-y-3 hidden">
+                    
+                    <div id="settings-menu-list" class="space-y-2">
+                        <div class="flex items-center justify-between px-1 mb-1">
+                            <span class="text-[11px] font-extrabold text-white uppercase tracking-wider">Ajustes de la Aplicación</span>
+                            <button onclick="switchModule('gastos')" class="text-xs text-indigo-400 font-bold">Cerrar</button>
+                        </div>
+
+                        <!-- 1. MI CUENTA Y MONEDA -->
+                        <button onclick="showSettingsSubpage('subpage-perfil')" class="w-full p-3.5 bg-slate-800 hover:bg-slate-750 border border-slate-700/80 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center"><i class="fa-solid fa-user text-base"></i></div>
+                                <div class="text-left"><h4 class="text-xs font-bold text-white">Mi Cuenta y Moneda</h4><p class="text-[10px] text-slate-400">Datos personales y Moneda (CLP / USD)</p></div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>
+                        </button>
+
+                        <!-- 2. INGRESOS Y SUELDO -->
+                        <button onclick="showSettingsSubpage('subpage-ingresos')" class="w-full p-3.5 bg-slate-800 hover:bg-slate-750 border border-slate-700/80 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center"><i class="fa-solid fa-money-bill-wave text-base"></i></div>
+                                <div class="text-left"><h4 class="text-xs font-bold text-white">Ingresos y Sueldo Líquido</h4><p class="text-[10px] text-slate-400">Configurar sueldo base mensual</p></div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>
+                        </button>
+
+                        <!-- 3. PLANES Y SUSCRIPCIÓN -->
+                        <button onclick="showSettingsSubpage('subpage-planes')" class="w-full p-3.5 bg-slate-800 hover:bg-slate-750 border border-slate-700/80 rounded-xl flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center"><i class="fa-solid fa-crown text-base"></i></div>
+                                <div class="text-left"><h4 class="text-xs font-bold text-white">Planes y Membresías</h4><p class="text-[10px] text-slate-400" id="settings-menu-plan-label">Plan Semilla (Gratis)</p></div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>
+                        </button>
+
+                        <!-- BOTÓN DE CERRAR SESIÓN -->
+                        <div class="pt-3">
+                            <button onclick="handleLogout()" class="w-full py-3 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-lg">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                Cerrar Sesión
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- SUBPÁGINA 1: PERFIL -->
+                    <div id="subpage-perfil" class="space-y-3 hidden">
+                        <button onclick="backToSettingsMenu()" class="text-xs text-indigo-400 font-bold flex items-center gap-1 mb-2"><i class="fa-solid fa-arrow-left"></i> Volver a Ajustes</button>
+                        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3 text-xs">
+                            <h3 class="font-bold text-white border-b border-slate-700 pb-2">Información de la Cuenta</h3>
+                            <div><span class="text-[10px] text-slate-400 block">Nombre</span><strong class="text-white" id="prof-val-name">-</strong></div>
+                            <div><span class="text-[10px] text-slate-400 block">RUT / ID</span><strong class="text-white" id="prof-val-rut">-</strong></div>
+                            <div><span class="text-[10px] text-slate-400 block">Correo</span><strong class="text-white" id="prof-val-email">-</strong></div>
+                            
+                            <div class="pt-2 border-t border-slate-700">
+                                <label class="block text-[10px] text-slate-400 mb-1">Cambiar Moneda de la Cuenta</label>
+                                <select id="setting-currency-select" onchange="changeAccountCurrency(this.value)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold">
+                                    <option value="CLP">CLP ($ Peso Chileno)</option>
+                                    <option value="USD">USD ($ Dólar)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUBPÁGINA 2: INGRESOS -->
+                    <div id="subpage-ingresos" class="space-y-3 hidden">
+                        <button onclick="backToSettingsMenu()" class="text-xs text-indigo-400 font-bold flex items-center gap-1 mb-2"><i class="fa-solid fa-arrow-left"></i> Volver a Ajustes</button>
+                        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
+                            <h3 class="font-bold text-xs text-white border-b border-slate-700 pb-2">Modificar Ingreso Mensual Líquido</h3>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1">Monto Líquido</label>
+                                <input type="text" id="setting-income-input" oninput="formatLiveInput(this)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-white font-bold">
+                            </div>
+                            <button onclick="saveIncomeSetting()" class="w-full py-2 bg-emerald-600 text-white font-bold rounded-lg text-xs shadow">Actualizar Sueldo</button>
+                        </div>
+                    </div>
+
+                    <!-- SUBPÁGINA 3: PLANES -->
+                    <div id="subpage-planes" class="space-y-3 hidden">
+                        <button onclick="backToSettingsMenu()" class="text-xs text-indigo-400 font-bold flex items-center gap-1 mb-2"><i class="fa-solid fa-arrow-left"></i> Volver a Ajustes</button>
+                        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 space-y-3">
+                            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                                <h3 class="text-xs font-bold text-white">Estado de la Suscripción</h3>
+                                <span id="sub-page-status-badge" class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] font-bold rounded-full">Activa</span>
+                            </div>
+
+                            <p class="text-xs text-white font-bold" id="sub-plan-name">Plan Semilla (Gratis)</p>
+                            <p class="text-[10px] text-slate-400">Procesado de forma segura a través de <strong>Google Play Billing / Android Services</strong>.</p>
+
+                            <button onclick="openModal('modal-plans')" class="w-full py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg text-xs shadow">
+                                Cambiar Plan o Activar Membresía
+                            </button>
+
+                            <button id="cancel-sub-btn" onclick="confirmCancelSubscription()" class="w-full py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/30 font-bold rounded-lg text-xs transition-all">
+                                Cancelar Suscripción Actual
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+
+            <!-- BARRA DE NAVEGACIÓN INFERIOR -->
+            <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-slate-900/95 backdrop-blur border-t border-slate-800 flex justify-around py-2 z-40">
+                <button onclick="switchModule('gastos')" id="nav-item-inicio" class="flex flex-col items-center text-indigo-400 text-[10px] font-bold">
+                    <i class="fa-solid fa-house text-base mb-0.5"></i>
+                    <span>Inicio</span>
+                </button>
+                <button onclick="switchModule('bolsillos')" id="nav-item-movimientos" class="flex flex-col items-center text-slate-400 text-[10px] font-bold">
+                    <i class="fa-solid fa-wallet text-base mb-0.5"></i>
+                    <span>Bolsillos</span>
+                </button>
+                <button onclick="switchModule('ia')" id="nav-item-ia" class="flex flex-col items-center text-slate-400 text-[10px] font-bold">
+                    <i class="fa-solid fa-robot text-base mb-0.5"></i>
+                    <span>IA Pro</span>
+                </button>
+                <button onclick="switchModule('configuracion')" id="nav-item-config" class="flex flex-col items-center text-slate-400 text-[10px] font-bold">
+                    <i class="fa-solid fa-gear text-base mb-0.5"></i>
+                    <span>Ajustes</span>
+                </button>
+            </nav>
+        </div>
+
+    </div>
+
+    <!-- ==================== MODALES INTERACTIVOS ==================== -->
+
+    <!-- MODAL APORTAR A META EN EL MES CON VALIDACIÓN DE SOBREGIRO -->
+    <div id="modal-aporte-meta" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 rounded-2xl max-w-xs w-full p-4 border border-slate-700 space-y-3">
+            <h3 class="text-xs font-bold text-white flex items-center gap-1.5" id="aporte-meta-title">
+                <i class="fa-solid fa-piggy-bank text-indigo-400"></i> Ahorro para esta Meta
+            </h3>
+            <p class="text-[10px] text-slate-400" id="aporte-meta-subtitle">Define cuánto abonarás a esta meta en este mes seleccionado.</p>
+
+            <div class="p-2 bg-slate-900/80 rounded-xl border border-slate-700 flex justify-between items-center text-[10px]">
+                <span class="text-slate-400">Disponible Máximo para Ahorrar:</span>
+                <span class="font-bold text-emerald-400" id="meta-disponible-previo">$0</span>
+            </div>
+
+            <div class="space-y-2">
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="skip-saving-check" onchange="toggleSkipSaving(this)" class="w-4 h-4 rounded border-slate-700 text-indigo-600 focus:ring-0">
+                    <label for="skip-saving-check" class="text-xs text-amber-300 font-bold">Este mes no voy a ahorrar ($0)</label>
+                </div>
+
+                <div id="saving-input-container">
+                    <label class="block text-[10px] text-slate-400 mb-1">Monto a Ahorrar este Mes</label>
+                    <input type="text" id="meta-monto-mes" oninput="formatLiveInput(this); validateAporteLive(this);" placeholder="ej: 50.000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-bold transition-all">
+                    <p id="meta-warning-text" class="text-[9px] text-rose-400 font-bold mt-1 hidden">
+                        <i class="fa-solid fa-triangle-exclamation"></i> ¡Advertencia! Este monto excede tu saldo disponible.
+                    </p>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('modal-aporte-meta')" class="px-3 py-1.5 text-xs text-slate-400">Cancelar</button>
+                <button onclick="confirmMetaAporte()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold shadow">Guardar Ahorro</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PLANES DE MEMBRESÍA CON CANJE DE CUPÓN 20% -->
+    <div id="modal-plans" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 rounded-2xl max-w-sm w-full p-4 border border-slate-700 space-y-3 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b border-slate-700 pb-2">
+                <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+                    <i class="fa-solid fa-crown text-amber-400"></i> Suscripciones vía Google Play
+                </h3>
+                <button onclick="closeModal('modal-plans')" class="text-slate-400"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <!-- CAMPO PARA CANJEAR CÓDIGO DE DESCUENTO 20% -->
+            <div class="p-2.5 bg-slate-900 rounded-xl border border-indigo-500/40 space-y-1.5">
+                <span class="text-[10px] font-bold text-indigo-300 flex items-center gap-1">
+                    <i class="fa-solid fa-ticket text-amber-400"></i> ¿Tienes un Código de Descuento 20%?
+                </span>
+                <div class="flex gap-2">
+                    <input type="text" id="coupon-code-input" placeholder="ej: EXITO20" class="flex-1 bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-white font-mono uppercase">
+                    <button onclick="applyDiscountCoupon()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg text-xs">Aplicar</button>
+                </div>
+                <p id="coupon-status-msg" class="text-[9px] text-slate-400 hidden"></p>
+            </div>
+
+            <div class="p-3 bg-slate-900 rounded-xl border border-slate-700 space-y-1">
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-xs text-white">1. Plan Semilla</span>
+                    <span class="text-xs font-bold text-slate-400">$0 / mes</span>
+                </div>
+                <p class="text-[9px] text-slate-400">Básico (máx 5 gastos, 1 meta y anuncios).</p>
+                <button onclick="simulateUpgrade('Semilla (Gratis)')" class="w-full mt-1 py-1 bg-slate-800 text-slate-300 font-bold rounded text-xs">Mantener Gratis</button>
+            </div>
+
+            <div class="p-3 bg-slate-900 rounded-xl border border-indigo-500/50 space-y-1">
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-xs text-indigo-300">2. Plan Control</span>
+                    <span class="text-xs font-extrabold text-indigo-400" id="price-plan-control">$1.290 CLP / mes</span>
+                </div>
+                <p class="text-[9px] text-slate-400">Sin anuncios, gastos e deudas ilimitados, incluye módulo Suscripciones.</p>
+                <button onclick="triggerGooglePlayBilling('Control', 1290)" class="w-full mt-1 py-1 bg-indigo-600 text-white font-bold rounded text-xs flex items-center justify-center gap-1">
+                    <i class="fa-brands fa-google-play"></i> Probar con Google Play
+                </button>
+            </div>
+
+            <div class="p-3 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-xl border-2 border-purple-500 space-y-1">
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-xs text-purple-300">3. Plan Inteligente</span>
+                    <span class="text-xs font-extrabold text-purple-400" id="price-plan-inteligente">$2.490 CLP / mes</span>
+                </div>
+                <p class="text-[9px] text-slate-300">Asistente IA con creación de gastos, Suscripciones y Tabla Resumen.</p>
+                <button onclick="triggerGooglePlayBilling('Inteligente', 2490)" class="w-full mt-1 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-lg text-xs flex items-center justify-center gap-1">
+                    <i class="fa-brands fa-google-play"></i> Probar con Google Play
+                </button>
+            </div>
+
+            <div class="p-3 bg-slate-900 rounded-xl border border-amber-500/60 space-y-1">
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-xs text-amber-300">4. Plan Élite / Libertad</span>
+                    <span class="text-xs font-extrabold text-amber-400" id="price-plan-elite">$4.990 CLP / mes</span>
+                </div>
+                <p class="text-[9px] text-slate-400">Calculadora Honorarios SII, Tema Dorado e IA Pro Ilimitada.</p>
+                <button onclick="triggerGooglePlayBilling('Élite', 4990)" class="w-full mt-1 py-1 bg-amber-500 text-slate-950 font-bold rounded text-xs flex items-center justify-center gap-1">
+                    <i class="fa-brands fa-google-play"></i> Activar Élite con Google Play
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL AGREGAR GASTO -->
+    <div id="modal-add-gasto" class="fixed inset-0 bg-black/75 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 rounded-2xl max-w-xs w-full p-4 border border-slate-700 space-y-3">
+            <h3 class="text-xs font-bold text-white flex items-center gap-1.5">
+                <i class="fa-solid fa-receipt text-indigo-400"></i> Nuevo Gasto
+            </h3>
+            
+            <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Nombre del Gasto</label>
+                <div class="relative">
+                    <input type="text" id="gasto-nombre" onfocus="showSuggestions('gastos', this)" oninput="filterSuggestions('gastos', this)" autocomplete="off" placeholder="ej: PC, Luz, Supermercado" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <div id="gastos-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl max-h-40 overflow-y-auto z-50 hidden"></div>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Monto del Gasto</label>
+                <input type="text" id="gasto-monto" oninput="formatLiveInput(this)" placeholder="ej: 50.000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-bold">
+            </div>
+
+            <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Fecha del Gasto (Calendario)</label>
+                <input type="date" id="gasto-fecha" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-bold">
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeModal('modal-add-gasto')" class="px-3 py-1.5 text-xs text-slate-400">Cancelar</button>
+                <button onclick="saveGasto()" class="px-4 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-bold shadow">Guardar Gasto</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVO BOLSILLO -->
+    <div id="modal-add-bolsillo" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 rounded-2xl max-w-xs w-full p-4 border border-slate-700 space-y-2.5">
+            <h3 class="text-xs font-bold text-white">Nuevo Bolsillo</h3>
+            <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Nombre del Bolsillo / Cuenta</label>
+                <div class="relative">
+                    <input type="text" id="bolsillo-nombre" onfocus="showSuggestions('bolsillos', this)" oninput="filterSuggestions('bolsillos', this)" autocomplete="off" placeholder="ej: Cuenta RUT, Efectivo" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <div id="bolsillos-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl max-h-40 overflow-y-auto z-50 hidden"></div>
+                </div>
+            </div>
+            <input type="text" id="bolsillo-saldo" oninput="formatLiveInput(this)" placeholder="Saldo (ej: 100.000)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-bold">
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="closeModal('modal-add-bolsillo')" class="px-3 py-1 text-xs text-slate-400">Cancelar</button>
+                <button onclick="saveBolsillo()" class="px-3.5 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVA DEUDA COMPLETA -->
+    <div id="modal-add-deuda" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 rounded-2xl max-w-xs w-full p-4 border border-slate-700 space-y-2.5">
+            <h3 class="text-xs font-bold text-white">Registrar Deuda</h3>
+            <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Nombre o Entidad de la Deuda</label>
+                <div class="relative">
+                    <input type="text" id="deuda-nombre" onfocus="showSuggestions('deudas', this)" oninput="filterSuggestions('deudas', this)" autocomplete="off" placeholder="ej: BancoEstado, CMR Falabella" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <div id="deudas-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl max-h-40 overflow-y-auto z-50 hidden"></div>
+                </div>
+            </div>
+            <input type="text" id="deuda-monto-total" oninput="formatLiveInput(this)" placeholder="Deuda Total Pedida (ej: 1.000.000)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-bold">
+            <div class="grid grid-cols-2 gap-2">
+                <input type="text" id="deuda-cuota" oninput="formatLiveInput(this)" placeholder="Cuota ($20.000)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-bold">
+                <input type="number" id="deuda-restantes" placeholder="Cant. Cuotas (12)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+            <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Día Límite de Pago Mensual</label>
+                <input type="text" id="deuda-vencimiento" placeholder="ej: Pagar antes del 5 de cada mes" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+            </div>
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="closeModal('modal-add-deuda')" class="px-3 py-1 text-xs text-slate-400">Cancelar</button>
+                <button onclick="saveDeuda()" class="px-3.5 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVA SUSCRIPCIÓN -->
+    <div id="modal-add-sub" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 rounded-2xl max-w-xs w-full p-4 border border-slate-700 space-y-2.5">
+            <h3 class="text-xs font-bold text-white">Nueva Suscripción</h3>
+            <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Servicio o Aplicación</label>
+                <div class="relative">
+                    <input type="text" id="sub-nombre" onfocus="showSuggestions('subs', this)" oninput="filterSuggestions('subs', this)" autocomplete="off" placeholder="ej: Netflix, Spotify" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <div id="subs-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl max-h-40 overflow-y-auto z-50 hidden"></div>
+                </div>
+            </div>
+            <input type="text" id="sub-monto" oninput="formatLiveInput(this)" placeholder="Costo Mensual (ej: 10.000)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-bold">
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="closeModal('modal-add-sub')" class="px-3 py-1 text-xs text-slate-400">Cancelar</button>
+                <button onclick="saveSub()" class="px-3.5 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NUEVA META DE AHORRO -->
+    <div id="modal-add-meta" class="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 rounded-2xl max-w-xs w-full p-4 border border-slate-700 space-y-2.5">
+            <h3 class="text-xs font-bold text-white">Nueva Meta de Ahorro</h3>
+            <div>
+                <label class="block text-[10px] text-slate-400 mb-0.5">Objetivo de Ahorro</label>
+                <div class="relative">
+                    <input type="text" id="meta-nombre" onfocus="showSuggestions('metas', this)" oninput="filterSuggestions('metas', this)" autocomplete="off" placeholder="ej: Pie Vivienda, Auto" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-indigo-500">
+                    <div id="metas-suggestions" class="absolute left-0 right-0 top-full mt-1 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl max-h-40 overflow-y-auto z-50 hidden"></div>
+                </div>
+            </div>
+            <input type="text" id="meta-objetivo" oninput="formatLiveInput(this)" placeholder="Monto Objetivo Total (ej: 2.400.000)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white font-bold">
+            <input type="text" id="meta-plazo" placeholder="Plazo / Fecha Límite (ej: 2 años)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white">
+            <div class="flex justify-end gap-2 pt-1">
+                <button onclick="closeModal('modal-add-meta')" class="px-3 py-1 text-xs text-slate-400">Cancelar</button>
+                <button onclick="saveMeta()" class="px-3.5 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL BLOQUEO DE FUNCIÓN (REQUIERE PLAN) -->
+    <div id="modal-feature-lock" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-800 rounded-2xl max-w-xs w-full p-5 border border-slate-700 text-center space-y-3">
+            <div class="w-12 h-12 bg-amber-500/20 text-amber-400 rounded-2xl flex items-center justify-center text-xl mx-auto">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h3 class="text-xs font-bold text-white">Función Restringida</h3>
+            <p id="lock-modal-desc" class="text-[10px] text-slate-300 leading-relaxed"></p>
+            <div class="pt-1 flex gap-2">
+                <button onclick="closeModal('modal-feature-lock')" class="flex-1 py-1.5 bg-slate-700 text-slate-300 text-xs rounded-lg">Cerrar</button>
+                <button onclick="closeModal('modal-feature-lock'); openModal('modal-plans');" class="flex-1 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold text-xs rounded-lg">Ver Planes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PASARELA GOOGLE PLAY -->
+    <div id="modal-google-pay" class="fixed inset-0 bg-black/85 z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 rounded-2xl max-w-xs w-full p-5 border border-slate-700 space-y-3 text-center">
+            <div class="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mx-auto">
+                <i class="fa-brands fa-google-play text-2xl text-emerald-400"></i>
+            </div>
+            <h3 class="text-xs font-bold text-white">Google Play Billing</h3>
+            <p class="text-[10px] text-slate-300">
+                Suscripción a <strong id="gplay-plan-title" class="text-indigo-400">Plan Inteligente</strong>.<br>
+                Procesando cobro seguro.
+            </p>
+            <div class="p-2 bg-slate-800 rounded-xl text-[9px] text-slate-400 text-left space-y-1 border border-slate-700">
+                <p><i class="fa-solid fa-shield-halved text-emerald-400"></i> Verificado por Google Play</p>
+                <p><i class="fa-solid fa-bell text-amber-400"></i> Notificación de facturación activa</p>
+            </div>
+            <div class="flex gap-2 pt-1">
+                <button onclick="closeModal('modal-google-pay')" class="flex-1 py-2 bg-slate-800 text-slate-300 text-xs rounded-xl font-bold">Cancelar</button>
+                <button onclick="confirmGooglePlaySubscription()" class="flex-1 py-2 bg-emerald-600 text-white font-bold text-xs rounded-xl shadow">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== LÓGICA JAVASCRIPT COMPLETA Y OPTIMIZADA ==================== -->
+    <script>
+        let currentUser = null;
+        let isPrivacyMode = false;
+        let pendingPlanSelection = null;
+        let selectedMetaForAporte = null;
+        let maxAvailableForMeta = 0;
+        let myChartInstance = null;
+        let activeDiscountFactor = 1.0;
+
+        const GASTOS_HORMIGA_KEYWORDS = ['completo', 'chatarra', 'snack', 'cafe', 'café', 'fast food', 'mcdonalds', 'kfc', 'sushi', 'salida', 'cerveza', 'bar', 'dulces', 'uber', 'delivery', 'comida rapida', 'comida rápida'];
+
+        const PRESETS = {
+            gastos: ["Supermercado", "Cuenta Luz", "Cuenta Agua", "Cuenta Gas", "Arriendo / Dividendo", "Internet / Fibra", "Gastos Comunes", "Bencina / Combustible", "Farmacia / Salud", "Colegio / Educación", "Seguro Automotriz", "Gasto Médico", "Salida Completo y Chatarra"],
+            bolsillos: ["Cuenta RUT", "Cuenta Corriente", "Cuenta de Ahorro", "Billetera Tenpo", "Billetera MACH", "Mercado Pago", "Efectivo", "Fondo Mutuo / Inversión", "Caja de Ahorro"],
+            deudas: ["BancoEstado", "Banco de Chile", "Banco Santander", "BCI", "CMR Falabella", "Tarjeta Cencosud", "Tarjeta Ripley", "Scotiabank", "Banco Itaú", "Crédito Consumo", "Crédito Automotriz", "Línea de Crédito"],
+            subs: ["Netflix", "Spotify", "Disney+", "Max (HBO)", "Amazon Prime Video", "YouTube Premium", "PedidosYa+", "Apple Music", "iCloud / Storage", "ChatGPT Plus", "Crunchyroll"],
+            metas: ["Pie para Vivienda", "Fondo de Emergencia", "Vacaciones / Viajes", "Auto Nuevo", "Estudios / Postgrado", "Emprendimiento", "Matrimonio", "Renovación Electrónica"]
+        };
+
+        function showSuggestions(cat, input) {
+            const container = document.getElementById(`${cat}-suggestions`);
+            if (!container) return;
+            const query = input.value.toLowerCase().trim();
+            const filtered = PRESETS[cat].filter(item => item.toLowerCase().includes(query));
+            
+            if (filtered.length === 0) {
+                container.classList.add('hidden');
+                return;
+            }
+            
+            container.innerHTML = filtered.map(item => `
+                <div onclick="selectSuggestion('${cat}', '${item.replace(/'/g, "\\'")}')" class="px-3 py-2 text-xs text-slate-200 hover:bg-indigo-600 hover:text-white cursor-pointer border-b border-slate-700/50 last:border-none flex items-center justify-between">
+                    <span>${item}</span>
+                    <i class="fa-solid fa-chevron-right text-[10px] text-slate-500"></i>
+                </div>
+            `).join('');
+            container.classList.remove('hidden');
+        }
+
+        function filterSuggestions(cat, input) { showSuggestions(cat, input); }
+
+        function selectSuggestion(cat, value) {
+            const inputIdMap = {
+                gastos: 'gasto-nombre',
+                bolsillos: 'bolsillo-nombre',
+                deudas: 'deuda-nombre',
+                subs: 'sub-nombre',
+                metas: 'meta-nombre'
+            };
+            const input = document.getElementById(inputIdMap[cat]);
+            if (input) input.value = value;
+            const container = document.getElementById(`${cat}-suggestions`);
+            if (container) container.classList.add('hidden');
+        }
+
+        document.addEventListener('click', (e) => {
+            const inputIdMap = {
+                gastos: 'gasto-nombre',
+                bolsillos: 'bolsillo-nombre',
+                deudas: 'deuda-nombre',
+                subs: 'sub-nombre',
+                metas: 'meta-nombre'
+            };
+            ['gastos', 'bolsillos', 'deudas', 'subs', 'metas'].forEach(cat => {
+                const container = document.getElementById(`${cat}-suggestions`);
+                const input = document.getElementById(inputIdMap[cat]);
+                if (container && input && !input.contains(e.target) && !container.contains(e.target)) {
+                    container.classList.add('hidden');
+                }
+            });
+        });
+
+        function triggerHaptic() { if (navigator.vibrate) navigator.vibrate(20); }
+
+        function formatLiveInput(input) {
+            let val = input.value.replace(/\D/g, "");
+            if (!val) { input.value = ""; return; }
+            input.value = new Intl.NumberFormat('es-CL').format(parseInt(val, 10));
+        }
+
+        function getRawAmount(inputVal) {
+            if (!inputVal) return 0;
+            return parseFloat(String(inputVal).replace(/\./g, "").replace(/,/g, "")) || 0;
+        }
+
+        function formatMoney(val) {
+            if (isPrivacyMode) return '$ ••••••';
+            const curr = currentUser ? (currentUser.currency || 'CLP') : 'CLP';
+            if (curr === 'USD') {
+                return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(val);
+            }
+            return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(val);
+        }
+
+        function getMonthName(yearMonthStr) {
+            const [y, m] = yearMonthStr.split('-');
+            const date = new Date(parseInt(y), parseInt(m) - 1, 1);
+            const monthName = date.toLocaleString('es-CL', { month: 'long' });
+            return monthName.charAt(0).toUpperCase() + monthName.slice(1) + ' ' + y;
+        }
+
+        function formatRut(rutInput) {
+            let actual = rutInput.value.replace(/^0+/, "").replace(/[^0-9kK]/g, "");
+            if (actual.length <= 1) { rutInput.value = actual; return; }
+            let dni = actual.slice(0, -1);
+            let dv = actual.slice(-1).toUpperCase();
+            let formattedDni = "";
+            for (let i = dni.length - 1, j = 1; i >= 0; i--, j++) {
+                formattedDni = dni.charAt(i) + formattedDni;
+                if (j % 3 === 0 && i !== 0) formattedDni = "." + formattedDni;
+            }
+            rutInput.value = formattedDni + "-" + dv;
+        }
+
+        function getCurrentYearMonth() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        }
+
+        function getUsersDB() { return JSON.parse(localStorage.getItem('finanzapp_users') || '{}'); }
+        function saveUsersDB(db) { localStorage.setItem('finanzapp_users', JSON.stringify(db)); }
+        function getUserData(username) { return getUsersDB()[username] || null; }
+        function saveUserData(userData) {
+            const db = getUsersDB();
+            db[userData.username] = userData;
+            saveUsersDB(db);
+        }
+
+        function ensureAdminAccount() {
+            const db = getUsersDB();
+            if (!db['admin']) {
+                db['admin'] = {
+                    name: 'Administrador / Reviewer',
+                    rut: '11.111.111-1',
+                    email: 'reviewer@google.com',
+                    username: 'admin',
+                    password: 'admin123',
+                    income: 1200000,
+                    currency: 'CLP',
+                    plan: 'Élite',
+                    gastos: [], deudas: [], subs: [], metas: [], bolsillos: []
+                };
+                saveUsersDB(db);
+            }
+        }
+
+        function switchAuthTab(tab) {
+            document.getElementById('login-form').classList.toggle('hidden', tab !== 'login');
+            document.getElementById('register-form').classList.toggle('hidden', tab !== 'register');
+            document.getElementById('tab-login-btn').className = tab === 'login' ? 'flex-1 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white' : 'flex-1 py-2 text-xs font-bold rounded-lg text-slate-400';
+            document.getElementById('tab-register-btn').className = tab === 'register' ? 'flex-1 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white' : 'flex-1 py-2 text-xs font-bold rounded-lg text-slate-400';
+        }
+
+        function handleRegister(e) {
+            e.preventDefault();
+            const username = document.getElementById('reg-username').value.toLowerCase().trim();
+            const email = document.getElementById('reg-email').value.toLowerCase().trim();
+            const db = getUsersDB();
+
+            if (db[username]) return alert('El usuario ya existe.');
+
+            const newUser = {
+                name: document.getElementById('reg-name').value,
+                rut: document.getElementById('reg-rut').value,
+                email, username,
+                password: document.getElementById('reg-password').value,
+                currency: document.getElementById('reg-currency').value,
+                income: getRawAmount(document.getElementById('reg-income').value),
+                plan: 'Semilla (Gratis)',
+                gastos: [], deudas: [], subs: [], metas: [], bolsillos: []
+            };
+
+            saveUserData(newUser);
+            triggerHaptic();
+            alert('¡Cuenta creada con éxito! Bienvenido a FinanzApp.');
+            switchAuthTab('login');
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const id = document.getElementById('login-identifier').value.toLowerCase().trim();
+            const pass = document.getElementById('login-password').value;
+            const db = getUsersDB();
+            let user = null;
+
+            for (let u in db) { if (db[u].username === id || db[u].email === id) { user = db[u]; break; } }
+            if (!user || user.password !== pass) return alert('Credenciales incorrectas.');
+
+            currentUser = user;
+            verifyDataSchema();
+
+            localStorage.setItem('finanzapp_active_user', currentUser.username);
+            triggerHaptic();
+            initAppView();
+        }
+
+        function verifyDataSchema() {
+            if (!currentUser.bolsillos) currentUser.bolsillos = [];
+            if (!currentUser.gastos) currentUser.gastos = [];
+            if (!currentUser.deudas) currentUser.deudas = [];
+            if (!currentUser.subs) currentUser.subs = [];
+            if (!currentUser.metas) currentUser.metas = [];
+            if (!currentUser.currency) currentUser.currency = 'CLP';
+
+            currentUser.metas.forEach(m => {
+                if (!m.aportes) {
+                    m.aportes = {};
+                    if (m.actual > 0) m.aportes[getCurrentYearMonth()] = m.actual;
+                }
+            });
+        }
+
+        function handleLogout() {
+            if (confirm("¿Deseas cerrar tu sesión actual?")) {
+                localStorage.removeItem('finanzapp_active_user');
+                currentUser = null;
+                document.getElementById('main-screen').classList.add('hidden');
+                document.getElementById('auth-screen').classList.remove('hidden');
+                triggerHaptic();
+            }
+        }
+
+        function initAppView() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('main-screen').classList.remove('hidden');
+
+            document.getElementById('user-display-name').innerText = currentUser.name;
+            document.getElementById('user-display-rut').innerText = currentUser.rut;
+            document.getElementById('user-avatar').innerText = currentUser.name.charAt(0).toUpperCase();
+            
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('gasto-fecha').value = todayStr;
+            document.getElementById('month-filter').value = getCurrentYearMonth();
+
+            document.getElementById('admin-panel-bar').classList.toggle('hidden', currentUser.username !== 'admin');
+
+            renderAll();
+        }
+
+        function hasAccess(feature) {
+            if (!currentUser) return false;
+            if (currentUser.username === 'admin') return true;
+            const plan = currentUser.plan || 'Semilla (Gratis)';
+
+            if (feature === 'suscripciones') return !plan.includes('Semilla');
+            if (feature === 'resumen' || feature === 'ia') return plan.includes('Inteligente') || plan.includes('Élite');
+            return true;
+        }
+
+        function switchModule(mod) {
+            if (mod === 'suscripciones' && !hasAccess('suscripciones')) {
+                showLockModal('El Gestor de Suscripciones requiere el Plan Control, Inteligente o Élite.');
+                return;
+            }
+            if (mod === 'resumen' && !hasAccess('resumen')) {
+                showLockModal('La Tabla de Balance Mensual requiere el Plan Inteligente o Élite.');
+                return;
+            }
+            if (mod === 'ia' && !hasAccess('ia')) {
+                showLockModal('El Asistente Financiero con IA requiere el Plan Inteligente o Élite.');
+                return;
+            }
+
+            const isConfigScreen = (mod === 'configuracion');
+            document.getElementById('hero-card').classList.toggle('hidden', isConfigScreen);
+            document.getElementById('horizontal-subnav').classList.toggle('hidden', isConfigScreen);
+
+            const mods = ['gastos', 'bolsillos', 'deudas', 'suscripciones', 'metas', 'resumen', 'ia', 'configuracion'];
+            mods.forEach(m => document.getElementById(`module-${m}`).classList.add('hidden'));
+
+            document.getElementById(`module-${mod}`).classList.remove('hidden');
+
+            if (isConfigScreen) { backToSettingsMenu(); }
+            triggerHaptic();
+        }
+
+        function showLockModal(msg) {
+            document.getElementById('lock-modal-desc').innerText = msg;
+            openModal('modal-feature-lock');
+            triggerHaptic();
+        }
+
+        function saveGastoCheckLimit() {
+            if (currentUser.username !== 'admin') {
+                const plan = currentUser.plan || 'Semilla (Gratis)';
+                if (plan.includes('Semilla') && currentUser.gastos.length >= 5) {
+                    showLockModal('El Plan Semilla (Gratis) permite registrar hasta 5 gastos.');
+                    return;
+                }
+            }
+            openModal('modal-add-gasto');
+        }
+
+        function saveMetaCheckLimit() {
+            if (currentUser.username !== 'admin') {
+                const plan = currentUser.plan || 'Semilla (Gratis)';
+                if (plan.includes('Semilla') && currentUser.metas.length >= 1) {
+                    showLockModal('El Plan Semilla (Gratis) permite registrar sólo 1 meta.');
+                    return;
+                }
+            }
+            openModal('modal-add-meta');
+        }
+
+        function deleteItem(category, id) {
+            if (confirm("¿Deseas borrar este ítem de tus finanzas?")) {
+                currentUser[category] = currentUser[category].filter(item => item.id !== id);
+                saveUserData(currentUser);
+                triggerHaptic();
+                renderAll();
+            }
+        }
+
+        function toggleCuotaDeuda(id) {
+            const d = currentUser.deudas.find(i => i.id === id);
+            if (d) {
+                d.pagadaEsteMes = !d.pagadaEsteMes;
+                if (d.pagadaEsteMes) {
+                    d.cuotasPagadas = (d.cuotasPagadas || 0) + 1;
+                } else {
+                    d.cuotasPagadas = Math.max(0, (d.cuotasPagadas || 1) - 1);
+                }
+                saveUserData(currentUser);
+                triggerHaptic();
+                renderAll();
+            }
+        }
+
+        function loadSimulatedMonth(simMonth) {
+            document.getElementById('month-filter').value = simMonth;
+            
+            const hasData = currentUser.gastos.some(g => g.mes === simMonth);
+            if (!hasData) {
+                currentUser.gastos.push(
+                    { id: Date.now() + '1', nombre: 'Supermercado Mensual', monto: 180000, fecha: `${simMonth}-05`, mes: simMonth, pagado: true },
+                    { id: Date.now() + '2', nombre: 'Cuenta Luz y Agua', monto: 45000, fecha: `${simMonth}-10`, mes: simMonth, pagado: true },
+                    { id: Date.now() + '3', nombre: 'Completo, Salidas y Chatarra', monto: 38000, fecha: `${simMonth}-18`, mes: simMonth, pagado: true }
+                );
+                
+                if (currentUser.metas.length > 0) {
+                    currentUser.metas[0].aportes[simMonth] = 40000;
+                }
+                saveUserData(currentUser);
+            }
+
+            renderAll();
+            switchModule('resumen');
+            alert(`Simulación de ${getMonthName(simMonth)} cargada con éxito.`);
+        }
+
+        function renderAll() {
+            if (!currentUser) return;
+            const currentMonth = document.getElementById('month-filter').value;
+            const plan = currentUser.plan || 'Semilla (Gratis)';
+            const isAdmin = currentUser.username === 'admin';
+
+            document.getElementById('free-ad-banner').classList.toggle('hidden', isAdmin || plan !== 'Semilla (Gratis)');
+            
+            const badge = document.getElementById('plan-badge');
+            badge.innerText = isAdmin ? 'Administrador' : plan;
+            if (isAdmin || plan.includes('Élite')) badge.className = 'px-2 py-0.5 text-[9px] font-black rounded-full uppercase border bg-amber-500/20 text-amber-300 border-amber-500/40';
+            else if (plan.includes('Inteligente')) badge.className = 'px-2 py-0.5 text-[9px] font-black rounded-full uppercase border bg-purple-500/20 text-purple-300 border-purple-500/40';
+            else if (plan.includes('Control')) badge.className = 'px-2 py-0.5 text-[9px] font-black rounded-full uppercase border bg-indigo-500/20 text-indigo-300 border-indigo-500/40';
+            else badge.className = 'px-2 py-0.5 text-[9px] font-black rounded-full uppercase border bg-slate-700 text-slate-300 border-slate-600';
+
+            const listGastos = currentUser.gastos.filter(g => g.mes === currentMonth);
+            
+            // 1. Suma de Gastos, Cuotas y Ahorros de Metas PAGADAS este mes
+            const totalGastosPagados = listGastos.filter(g => g.pagado).reduce((s, g) => s + g.monto, 0);
+            const totalCuotasDeudasPagadas = currentUser.deudas.filter(d => d.pagadaEsteMes).reduce((s, d) => s + d.cuota, 0);
+            const totalSubs = currentUser.subs.reduce((s, sub) => s + sub.monto, 0);
+
+            // Aportes ÚNICAMENTE del mes seleccionado para las metas
+            let totalAhorroMetasMes = 0;
+            currentUser.metas.forEach(m => {
+                totalAhorroMetasMes += (m.aportes[currentMonth] || 0);
+            });
+
+            // 2. Suma de Gastos y Cuotas PENDIENTES
+            const totalGastosPendientes = listGastos.filter(g => !g.pagado).reduce((s, g) => s + g.monto, 0);
+            const totalCuotasDeudasPendientes = currentUser.deudas.filter(d => !d.pagadaEsteMes).reduce((s, d) => s + d.cuota, 0);
+
+            // Dinero pagado acumulado (Salida efectiva del mes actual)
+            const totalPagadoMes = totalGastosPagados + totalCuotasDeudasPagadas + totalSubs + totalAhorroMetasMes;
+            const compromisoPendienteTotal = totalGastosPendientes + totalCuotasDeudasPendientes;
+
+            // DISPONIBLE REAL ACTUAL = Sueldo Base - Dinero Pagado en el mes (Sin afectar los saldos guardados históricos)
+            const disponible = currentUser.income - totalPagadoMes;
+
+            const dispElem = document.getElementById('disp-amount');
+            dispElem.innerText = formatMoney(disponible);
+
+            const deficitCard = document.getElementById('deficit-alert-card');
+            const healthElem = document.getElementById('health-score');
+
+            if (disponible < 0) {
+                dispElem.className = "text-2xl font-black text-rose-500 tracking-tight";
+                healthElem.innerText = "20 / 100 (Crítico)";
+                healthElem.className = "text-base font-black text-rose-500";
+                
+                deficitCard.classList.remove('hidden');
+                document.getElementById('deficit-text-detail').innerText = `Tus pagos acumulados superan tu ingreso base por ${formatMoney(Math.abs(disponible))}.`;
+
+                let highestPaid = { name: '', amount: 0 };
+                listGastos.forEach(g => { if (g.pagado && g.monto > highestPaid.amount) highestPaid = { name: g.nombre, amount: g.monto }; });
+                currentUser.deudas.forEach(d => { if (d.pagadaEsteMes && d.cuota > highestPaid.amount) highestPaid = { name: d.nombre, amount: d.cuota }; });
+
+                if (highestPaid.amount > 0) {
+                    document.getElementById('deficit-ai-solution').innerHTML = `Realizaste un pago elevado en <strong>"${highestPaid.name}"</strong> (${formatMoney(highestPaid.amount)}). Considera recortar gastos no esenciales.`;
+                } else {
+                    document.getElementById('deficit-ai-solution').innerText = `Incrementa tu sueldo líquido en Ajustes o utiliza saldo retenido en tus Bolsillos.`;
+                }
+
+            } else {
+                dispElem.className = "text-2xl font-black text-white tracking-tight";
+                healthElem.innerText = "85 / 100";
+                healthElem.className = "text-base font-black text-emerald-400";
+                deficitCard.classList.add('hidden');
+            }
+
+            document.getElementById('pending-expenses-amount').innerText = formatMoney(compromisoPendienteTotal);
+
+            const today = new Date();
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            const daysLeft = Math.max(1, lastDay - today.getDate());
+            const daily = Math.max(0, Math.floor(disponible / daysLeft));
+            document.getElementById('daily-limit-amount').innerText = `${formatMoney(daily)} / día`;
+
+            renderGastos(listGastos);
+            renderBolsillos();
+            renderDeudas();
+            renderSubs();
+            renderMetas(currentMonth);
+            renderSummaryModule(listGastos, disponible, totalPagadoMes, totalAhorroMetasMes, currentMonth);
+            renderProfileModule();
+        }
+
+        function saveGasto() {
+            const nombre = document.getElementById('gasto-nombre').value.trim();
+            const monto = getRawAmount(document.getElementById('gasto-monto').value);
+            const fechaVal = document.getElementById('gasto-fecha').value;
+
+            if (!nombre || monto <= 0 || !fechaVal) return alert('Completa todos los campos');
+
+            const mes = fechaVal.substring(0, 7);
+
+            currentUser.gastos.push({
+                id: Date.now().toString(),
+                nombre,
+                monto,
+                fecha: fechaVal,
+                mes,
+                pagado: false
+            });
+
+            saveUserData(currentUser);
+            triggerHaptic();
+            closeModal('modal-add-gasto');
+
+            document.getElementById('gasto-nombre').value = '';
+            document.getElementById('gasto-monto').value = '';
+
+            renderAll();
+        }
+
+        function renderGastos(list) {
+            const container = document.getElementById('gastos-list');
+            if (list.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-5">Sin gastos en este mes.</p>`;
+                return;
+            }
+            container.innerHTML = list.map(g => `
+                <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <button onclick="toggleGasto('${g.id}')" class="w-5 h-5 rounded border ${g.pagado ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-600'} flex items-center justify-center">
+                            ${g.pagado ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
+                        </button>
+                        <div>
+                            <h4 class="text-xs font-bold ${g.pagado ? 'line-through text-slate-500' : 'text-white'}">${g.nombre}</h4>
+                            <span class="text-[9px] ${g.pagado ? 'text-emerald-400 font-bold' : 'text-slate-400'} block">${g.pagado ? 'Descontado del disponible' : `Fecha: ${g.fecha || 'Hoy'}`}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold ${g.pagado ? 'text-rose-400' : 'text-white'}">${formatMoney(g.monto)}</span>
+                        <button onclick="deleteItem('gastos', '${g.id}')" title="Borrar gasto" class="text-slate-500 hover:text-rose-400 p-1 transition-all"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleGasto(id) {
+            const g = currentUser.gastos.find(i => i.id === id);
+            if (g) { g.pagado = !g.pagado; saveUserData(currentUser); triggerHaptic(); renderAll(); }
+        }
+
+        // APORTE DE META Y VALIDACIÓN DE EXCESO DE DISPONIBLE
+        function openAporteMetaModal(metaId) {
+            selectedMetaForAporte = currentUser.metas.find(m => m.id === metaId);
+            if (!selectedMetaForAporte) return;
+
+            const currentMonth = document.getElementById('month-filter').value;
+            document.getElementById('aporte-meta-title').innerText = `Ahorro para: ${selectedMetaForAporte.nombre}`;
+            document.getElementById('aporte-meta-subtitle').innerText = `Mes: ${getMonthName(currentMonth)}`;
+
+            // Calcular disponibilidad máxima excluyendo el aporte previo de esta misma meta
+            const listGastos = currentUser.gastos.filter(g => g.mes === currentMonth);
+            const totalGastosPagados = listGastos.filter(g => g.pagado).reduce((s, g) => s + g.monto, 0);
+            const totalCuotasDeudasPagadas = currentUser.deudas.filter(d => d.pagadaEsteMes).reduce((s, d) => s + d.cuota, 0);
+            const totalSubs = currentUser.subs.reduce((s, sub) => s + sub.monto, 0);
+
+            let totalOtrosAhorrosMetas = 0;
+            currentUser.metas.forEach(m => {
+                if (m.id !== selectedMetaForAporte.id) {
+                    totalOtrosAhorrosMetas += (m.aportes[currentMonth] || 0);
+                }
+            });
+
+            maxAvailableForMeta = currentUser.income - (totalGastosPagados + totalCuotasDeudasPagadas + totalSubs + totalOtrosAhorrosMetas);
+            document.getElementById('meta-disponible-previo').innerText = formatMoney(maxAvailableForMeta);
+
+            const actualAporte = selectedMetaForAporte.aportes[currentMonth] || 0;
+            const skipCheck = document.getElementById('skip-saving-check');
+            const inputAmount = document.getElementById('meta-monto-mes');
+            const warningText = document.getElementById('meta-warning-text');
+
+            warningText.classList.add('hidden');
+            inputAmount.classList.remove('border-rose-500');
+
+            if (actualAporte === 0) {
+                skipCheck.checked = false;
+                inputAmount.value = '';
+            } else {
+                skipCheck.checked = false;
+                inputAmount.value = new Intl.NumberFormat('es-CL').format(actualAporte);
+            }
+
+            document.getElementById('saving-input-container').classList.remove('hidden');
+            openModal('modal-aporte-meta');
+        }
+
+        function validateAporteLive(input) {
+            const val = getRawAmount(input.value);
+            const warningText = document.getElementById('meta-warning-text');
+            if (val > maxAvailableForMeta) {
+                warningText.classList.remove('hidden');
+                input.classList.add('border-rose-500');
+            } else {
+                warningText.classList.add('hidden');
+                input.classList.remove('border-rose-500');
+            }
+        }
+
+        function toggleSkipSaving(checkbox) {
+            const inputContainer = document.getElementById('saving-input-container');
+            if (checkbox.checked) {
+                inputContainer.classList.add('hidden');
+                document.getElementById('meta-monto-mes').value = '0';
+            } else {
+                inputContainer.classList.remove('hidden');
+            }
+        }
+
+        function confirmMetaAporte() {
+            if (!selectedMetaForAporte) return;
+            const currentMonth = document.getElementById('month-filter').value;
+            const isSkipped = document.getElementById('skip-saving-check').checked;
+            
+            let monto = 0;
+            if (!isSkipped) {
+                monto = getRawAmount(document.getElementById('meta-monto-mes').value);
+            }
+
+            // Advertencia y bloqueo si se excede el presupuesto disponible
+            if (monto > maxAvailableForMeta) {
+                alert(`⚠️ ¡Advertencia! El monto ingresado (${formatMoney(monto)}) excede tu saldo disponible actual (${formatMoney(maxAvailableForMeta)}). Por favor ingresa una cantidad dentro de tu presupuesto.`);
+                return;
+            }
+
+            selectedMetaForAporte.aportes[currentMonth] = monto;
+            saveUserData(currentUser);
+            triggerHaptic();
+            closeModal('modal-aporte-meta');
+            renderAll();
+        }
+
+        function renderMetas(currentMonth) {
+            const container = document.getElementById('metas-list');
+            if (currentUser.metas.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-5">Sin metas de ahorro.</p>`;
+                return;
+            }
+            container.innerHTML = currentUser.metas.map(m => {
+                let totalAcumulado = 0;
+                for (let mesKey in m.aportes) {
+                    totalAcumulado += (m.aportes[mesKey] || 0);
+                }
+
+                const aporteMesActual = m.aportes[currentMonth] || 0;
+                const pct = Math.min(100, Math.round((totalAcumulado / m.objetivo) * 100));
+
+                return `
+                    <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-xs font-bold text-white">${m.nombre}</h4>
+                                <span class="text-[10px] text-indigo-300 block">Objetivo Total: ${formatMoney(m.objetivo)} (Llevas ${formatMoney(totalAcumulado)})</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="text-xs font-black text-emerald-400">${pct}%</span>
+                                <button onclick="deleteItem('metas', '${m.id}')" title="Borrar meta" class="text-slate-500 hover:text-rose-400 p-1 transition-all"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- BARRA DE PROGRESO -->
+                        <div class="w-full bg-slate-900 rounded-full h-2 overflow-hidden border border-slate-700">
+                            <div class="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                        </div>
+
+                        <!-- RESUMEN DEL MES Y BOTÓN DE APORTE -->
+                        <div class="flex justify-between items-center pt-1 border-t border-slate-700/60">
+                            <div>
+                                <span class="text-[9px] text-slate-400 block">Ahorrado en ${getMonthName(currentMonth)}:</span>
+                                <strong class="text-xs font-bold ${aporteMesActual > 0 ? 'text-emerald-400' : 'text-amber-400'}">
+                                    ${aporteMesActual > 0 ? formatMoney(aporteMesActual) : 'Sin ahorro este mes ($0)'}
+                                </strong>
+                            </div>
+                            <button onclick="openAporteMetaModal('${m.id}')" class="px-2.5 py-1 bg-indigo-600/90 hover:bg-indigo-600 text-white font-bold rounded-lg text-[10px] flex items-center gap-1 shadow">
+                                <i class="fa-solid fa-pen-to-square"></i> Aportar este Mes
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderSummaryModule(gastos, disponible, totalPagado, totalAhorroMetas, currentMonth) {
+            document.getElementById('summary-month-label').innerText = getMonthName(currentMonth);
+
+            let totalGastosHormiga = 0;
+            let totalGastosFijosEsenciales = 0;
+
+            gastos.forEach(g => {
+                const lowerName = g.nombre.toLowerCase();
+                const isHormiga = GASTOS_HORMIGA_KEYWORDS.some(k => lowerName.includes(k));
+                if (isHormiga) {
+                    totalGastosHormiga += g.monto;
+                } else {
+                    totalGastosFijosEsenciales += g.monto;
+                }
+            });
+
+            const totalDeudasPagadas = currentUser.deudas.filter(d => d.pagadaEsteMes).reduce((s, d) => s + d.cuota, 0);
+
+            const ctx = document.getElementById('efficiencyChart').getContext('2d');
+            if (myChartInstance) myChartInstance.destroy();
+
+            myChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Esenciales/Fijos', 'Gastos Hormiga', 'Deudas', 'Ahorro Metas', 'Disponible'],
+                    datasets: [{
+                        data: [totalGastosFijosEsenciales, totalGastosHormiga, totalDeudasPagadas, totalAhorroMetas, Math.max(0, disponible)],
+                        backgroundColor: ['#6366F1', '#EF4444', '#F59E0B', '#10B981', '#3B82F6'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'right', labels: { color: '#CBD5E1', font: { size: 9 } } }
+                    }
+                }
+            });
+
+            const aiFeedbackBox = document.getElementById('ai-monthly-feedback');
+            let isEfficient = (disponible >= 0) && (totalGastosHormiga < (currentUser.income * 0.15));
+            let adviceHTML = '';
+
+            if (totalGastosHormiga > 0) {
+                const potencialAhorro = Math.round(totalGastosHormiga * 0.7);
+                adviceHTML += `
+                    <div class="p-2 bg-rose-950/40 border border-rose-800/50 rounded-lg text-[10px] text-rose-300">
+                        <i class="fa-solid fa-cookie-bite mr-1"></i> <strong>Gastos Hormiga Detectados (${formatMoney(totalGastosHormiga)}):</strong> Comida rápida, chatarra o antojos.<br>
+                        👉 <em>Consejo IA:</em> Si reduces estos antojitos el próximo mes, podrás ahorrar <strong>${formatMoney(potencialAhorro)} extra</strong> para tus metas.
+                    </div>
+                `;
+            }
+
+            if (isEfficient) {
+                adviceHTML = `
+                    <div class="p-2 bg-emerald-950/50 border border-emerald-600/50 rounded-lg text-[10px] text-emerald-300 space-y-1">
+                        <div class="font-black text-emerald-400 flex items-center gap-1">
+                            <i class="fa-solid fa-trophy text-amber-400"></i> ¡Mes Excelente y Eficiente en Finanzas!
+                        </div>
+                        <p>Lograste mantener saldo positivo y avanzar en tus metas. ¡Felicitaciones por cuidar tu dinero!</p>
+                        <div class="p-2 bg-slate-900 border border-amber-500/50 rounded-lg flex items-center justify-between mt-1">
+                            <div>
+                                <span class="text-[9px] text-slate-400 block">Tu Código Premio (20% OFF Próxima Facturación):</span>
+                                <code class="text-xs font-mono font-bold text-amber-400">EXITO20</code>
+                            </div>
+                            <button onclick="openModal('modal-plans')" class="px-2 py-1 bg-amber-500 text-slate-950 font-bold rounded text-[10px]">Canjear</button>
+                        </div>
+                    </div>
+                ` + adviceHTML;
+                aiFeedbackBox.className = "p-3 rounded-xl border border-emerald-500/50 bg-slate-900/80 space-y-2";
+            } else {
+                aiFeedbackBox.className = "p-3 rounded-xl border border-amber-500/50 bg-slate-900/80 space-y-2";
+            }
+
+            aiFeedbackBox.innerHTML = adviceHTML;
+            renderSummaryTable(gastos, disponible);
+        }
+
+        function renderSummaryTable(gastos, disponible) {
+            const tbody = document.getElementById('monthly-summary-table-body');
+            let rows = `
+                <tr>
+                    <td class="p-2 font-bold text-emerald-400">Ingreso Mensual Base</td>
+                    <td class="p-2 text-right font-bold text-emerald-400">${formatMoney(currentUser.income)}</td>
+                    <td class="p-2 text-center"><span class="px-1.5 py-0.5 bg-emerald-500/20 text-emerald-400 rounded text-[9px]">Ingreso</span></td>
+                </tr>
+            `;
+
+            gastos.forEach(g => {
+                rows += `
+                    <tr>
+                        <td class="p-2">${g.nombre}</td>
+                        <td class="p-2 text-right">${formatMoney(g.monto)}</td>
+                        <td class="p-2 text-center"><span class="px-1.5 py-0.5 ${g.pagado ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-700 text-slate-300'} rounded text-[9px]">${g.pagado ? 'Pagado (-)' : 'Pendiente'}</span></td>
+                    </tr>
+                `;
+            });
+
+            currentUser.deudas.forEach(d => {
+                rows += `
+                    <tr>
+                        <td class="p-2">Cuota ${d.nombre}</td>
+                        <td class="p-2 text-right">${formatMoney(d.cuota)}</td>
+                        <td class="p-2 text-center"><span class="px-1.5 py-0.5 ${d.pagadaEsteMes ? 'bg-rose-500/20 text-rose-400' : 'bg-slate-700 text-slate-300'} rounded text-[9px]">${d.pagadaEsteMes ? 'Pagado (-)' : 'Pendiente'}</span></td>
+                    </tr>
+                `;
+            });
+
+            rows += `
+                <tr class="bg-slate-900/90 font-bold border-t border-slate-700">
+                    <td class="p-2 text-white">Disponible Real Restante</td>
+                    <td class="p-2 text-right ${disponible < 0 ? 'text-rose-400' : 'text-indigo-300'}">${formatMoney(disponible)}</td>
+                    <td class="p-2 text-center"><span class="px-1.5 py-0.5 ${disponible < 0 ? 'bg-rose-500/20 text-rose-400' : 'bg-indigo-500/20 text-indigo-300'} rounded text-[9px]">Líquido</span></td>
+                </tr>
+            `;
+
+            tbody.innerHTML = rows;
+        }
+
+        function applyDiscountCoupon() {
+            const code = document.getElementById('coupon-code-input').value.trim().toUpperCase();
+            const msg = document.getElementById('coupon-status-msg');
+            msg.classList.remove('hidden');
+
+            if (code === 'EXITO20' || code === 'FINANZAS20') {
+                activeDiscountFactor = 0.8;
+                msg.className = "text-[9px] text-emerald-400 font-bold";
+                msg.innerText = "¡Código de 20% de descuento aplicado con éxito a tu próxima facturación!";
+                
+                document.getElementById('price-plan-control').innerText = `$${new Intl.NumberFormat('es-CL').format(Math.round(1290 * 0.8))} CLP / mes`;
+                document.getElementById('price-plan-inteligente').innerText = `$${new Intl.NumberFormat('es-CL').format(Math.round(2490 * 0.8))} CLP / mes`;
+                document.getElementById('price-plan-elite').innerText = `$${new Intl.NumberFormat('es-CL').format(Math.round(4990 * 0.8))} CLP / mes`;
+                triggerHaptic();
+            } else {
+                msg.className = "text-[9px] text-rose-400 font-bold";
+                msg.innerText = "Código no válido o expirado.";
+            }
+        }
+
+        function triggerGooglePlayBilling(planName, basePrice) {
+            const finalPrice = Math.round(basePrice * activeDiscountFactor);
+            pendingPlanSelection = { planName, price: finalPrice };
+            document.getElementById('gplay-plan-title').innerText = `Plan ${planName} ($${new Intl.NumberFormat('es-CL').format(finalPrice)})`;
+            closeModal('modal-plans');
+            openModal('modal-google-pay');
+        }
+
+        function confirmGooglePlaySubscription() {
+            if (!pendingPlanSelection) return;
+            currentUser.plan = `${pendingPlanSelection.planName}`;
+            saveUserData(currentUser);
+            triggerHaptic();
+            closeModal('modal-google-pay');
+            alert(`¡Suscripción procesada con Google Play! Plan ${pendingPlanSelection.planName} activado.`);
+            initAppView();
+        }
+
+        function parseAICommand(promptText) {
+            const text = promptText.trim();
+            const lower = text.toLowerCase();
+
+            let type = 'gasto';
+            if (/bolsillo|cuenta|banco|efectivo/.test(lower)) type = 'bolsillo';
+            else if (/deuda|crédito|credito|tarjeta|cuota|prestamo|préstamo/.test(lower)) type = 'deuda';
+            else if (/meta|ahorro|objetivo/.test(lower)) type = 'meta';
+            else if (/suscripcion|suscripción|recurrente|netflix|spotify|disney|hbo|prime|pedidosya/.test(lower)) type = 'suscripcion';
+
+            const numbers = [];
+            const matches = lower.matchAll(/(\d[\d\.]*)\s*(millon|millón|millones|mil)?/g);
+            for (const match of matches) {
+                let cleanNum = match[1].replace(/\./g, '');
+                let val = parseInt(cleanNum, 10) || 0;
+                if (match[2] && (match[2].includes('millon') || match[2].includes('millón'))) val *= 1000000;
+                else if (match[2] === 'mil' && val < 1000) val *= 1000;
+                numbers.push(val);
+            }
+
+            let montoTotal = numbers[0] || 0;
+            let cuota = numbers[1] || numbers[0] || 0;
+            let cuotasTotales = 12;
+
+            const cuotaMatch = lower.match(/(\d+)\s*cuotas/);
+            if (cuotaMatch) cuotasTotales = parseInt(cuotaMatch[1], 10);
+
+            if (type === 'deuda' && numbers.length >= 2) {
+                montoTotal = Math.max(numbers[0], numbers[1]);
+                cuota = Math.min(numbers[0], numbers[1]);
+            }
+
+            let cleanName = text
+                .replace(/^(crea|crear|agrega|agregar|añade|añadir|registra|registrar|nuevo|nueva|pon|poner|un|una|el|la)\s+/gi, '')
+                .replace(/(un|una)?\s*(nuevo|nueva)?\s*(deuda|gasto|bolsillo|cuenta|suscripcion|suscripción|meta|ahorro)\s*/gi, '')
+                .replace(/(que\s+se\s+llame|llamado|llamada|de\s+nombre|con\s+el\s+nombre\s+de|con\s+nombre|donde\s+se|que\s+esta\s+en)\s*/gi, '')
+                .replace(/(con\s+un\s+monto\s+de|con\s+monto\s+de|monto|de|por|saldo)\s*(\$|\d+[\d\.]*|\d+)\s*(millon|millón|mil)?\s*(pesos|clp|usd)?/gi, '')
+                .replace(/(en\s+cuotas\s+de|en|cuotas\s+de|cuotas|con|al\s+mes|mensual|mensuales|gasto|mis|mi)\s*/gi, '')
+                .replace(/(\$|\d+[\d\.]*|\d+)\s*(millon|millón|mil)?\s*(pesos|clp|usd)?/gi, '')
+                .replace(/(\d+)\s*cuotas/gi, '')
+                .trim();
+
+            cleanName = cleanName.replace(/^(de|con|para|por|en|un|una)\s+/gi, '').trim();
+
+            if (!cleanName || cleanName.length < 2) {
+                if (type === 'bolsillo') cleanName = "Cuenta RUT";
+                else if (type === 'meta') cleanName = "Futura Casa";
+                else if (type === 'suscripcion') cleanName = "Servicio Suscripción";
+                else if (type === 'deuda') cleanName = "Tarjeta de Crédito";
+                else cleanName = "Salida Completo y Chatarra";
+            }
+
+            cleanName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
+
+            return { type, name: cleanName, montoTotal, cuota, cuotasTotales };
+        }
+
+        function quickFillIA(type, name, amount) {
+            document.getElementById('ia-prompt').value = `crea ${type} ${name} con un monto de ${new Intl.NumberFormat('es-CL').format(amount)} pesos`;
+            processAIPrompt();
+        }
+
+        function processAIPrompt() {
+            const rawPrompt = document.getElementById('ia-prompt').value.trim();
+            if (!rawPrompt) return;
+            const resp = document.getElementById('ia-response');
+            resp.classList.remove('hidden');
+
+            const parsed = parseAICommand(rawPrompt);
+
+            if (parsed.type === 'deuda') {
+                currentUser.deudas.push({
+                    id: Date.now().toString(),
+                    nombre: parsed.name,
+                    montoTotal: parsed.montoTotal || (parsed.cuota * parsed.cuotasTotales),
+                    cuota: parsed.cuota,
+                    cuotasTotales: parsed.cuotasTotales,
+                    cuotasPagadas: 0,
+                    vencimiento: "Pagar antes del 5 de cada mes",
+                    pagadaEsteMes: false
+                });
+                saveUserData(currentUser);
+                renderAll();
+                document.getElementById('ia-prompt').value = '';
+                resp.innerHTML = `<div class="text-emerald-400 font-bold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> ¡Deuda Registrada Correctamente!</div>
+                <p class="mt-1">Deuda <strong>"${parsed.name}"</strong> por un total de <strong>${formatMoney(parsed.montoTotal)}</strong> en <strong>${parsed.cuotasTotales} cuotas</strong> de <strong>${formatMoney(parsed.cuota)}/mes</strong>.</p>`;
+                triggerHaptic();
+                return;
+            }
+
+            if (parsed.type === 'bolsillo') {
+                currentUser.bolsillos.push({ id: Date.now().toString(), nombre: parsed.name, saldo: parsed.montoTotal });
+                saveUserData(currentUser);
+                renderAll();
+                document.getElementById('ia-prompt').value = '';
+                resp.innerHTML = `<div class="text-emerald-400 font-bold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> ¡Bolsillo Creado!</div>
+                <p class="mt-1">Bolsillo <strong>"${parsed.name}"</strong> con saldo de <strong>${formatMoney(parsed.montoTotal)}</strong>.</p>`;
+                triggerHaptic();
+                return;
+            }
+
+            if (parsed.type === 'suscripcion') {
+                currentUser.subs.push({ id: Date.now().toString(), nombre: parsed.name, monto: parsed.cuota });
+                saveUserData(currentUser);
+                renderAll();
+                document.getElementById('ia-prompt').value = '';
+                resp.innerHTML = `<div class="text-emerald-400 font-bold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> ¡Suscripción Creada!</div>
+                <p class="mt-1">Suscripción <strong>"${parsed.name}"</strong> fijada en <strong>${formatMoney(parsed.cuota)} / mes</strong>.</p>`;
+                triggerHaptic();
+                return;
+            }
+
+            if (parsed.type === 'meta') {
+                const initialAportes = {};
+                initialAportes[getCurrentYearMonth()] = 0;
+                currentUser.metas.push({
+                    id: Date.now().toString(),
+                    nombre: parsed.name,
+                    objetivo: parsed.montoTotal * 12 || 1200000,
+                    aportes: initialAportes,
+                    plazo: "2 años"
+                });
+                saveUserData(currentUser);
+                renderAll();
+                document.getElementById('ia-prompt').value = '';
+                resp.innerHTML = `<div class="text-emerald-400 font-bold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> ¡Meta Configurada!</div>
+                <p class="mt-1">Meta <strong>"${parsed.name}"</strong> creada a 2 años.</p>`;
+                triggerHaptic();
+                return;
+            }
+
+            const todayStr = new Date().toISOString().split('T')[0];
+            const curMonth = todayStr.substring(0, 7);
+
+            currentUser.gastos.push({
+                id: Date.now().toString(),
+                nombre: parsed.name,
+                monto: parsed.cuota,
+                fecha: todayStr,
+                mes: curMonth,
+                pagado: false
+            });
+
+            saveUserData(currentUser);
+            renderAll();
+            document.getElementById('ia-prompt').value = '';
+
+            resp.innerHTML = `<div class="text-emerald-400 font-bold flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> ¡Gasto Registrado!</div>
+            <p class="mt-1">Se creó el gasto <strong>"${parsed.name}"</strong> por <strong>${formatMoney(parsed.cuota)}</strong> (Fecha: ${todayStr}).</p>`;
+            triggerHaptic();
+        }
+
+        function saveBolsillo() {
+            const nombre = document.getElementById('bolsillo-nombre').value.trim();
+            const saldo = getRawAmount(document.getElementById('bolsillo-saldo').value);
+            if (!nombre) return alert('Ingresa un nombre');
+            currentUser.bolsillos.push({ id: Date.now().toString(), nombre, saldo });
+            saveUserData(currentUser);
+            closeModal('modal-add-bolsillo');
+            renderAll();
+        }
+
+        function saveDeuda() {
+            const nombre = document.getElementById('deuda-nombre').value.trim();
+            const montoTotal = getRawAmount(document.getElementById('deuda-monto-total').value);
+            const cuota = getRawAmount(document.getElementById('deuda-cuota').value);
+            const restantes = parseInt(document.getElementById('deuda-restantes').value) || 12;
+            const vencimiento = document.getElementById('deuda-vencimiento').value.trim() || "Pagar antes del 5 de cada mes";
+            if (!nombre || !cuota) return alert('Completa los datos requeridos');
+            
+            currentUser.deudas.push({
+                id: Date.now().toString(),
+                nombre,
+                montoTotal: montoTotal || (cuota * restantes),
+                cuota,
+                cuotasTotales: restantes,
+                cuotasPagadas: 0,
+                vencimiento,
+                pagadaEsteMes: false
+            });
+
+            saveUserData(currentUser);
+            closeModal('modal-add-deuda');
+            renderAll();
+        }
+
+        function saveSub() {
+            const nombre = document.getElementById('sub-nombre').value.trim();
+            const monto = getRawAmount(document.getElementById('sub-monto').value);
+            if (!nombre || !monto) return alert('Completa los datos');
+            currentUser.subs.push({ id: Date.now().toString(), nombre, monto });
+            saveUserData(currentUser);
+            closeModal('modal-add-sub');
+            renderAll();
+        }
+
+        function saveMeta() {
+            const nombre = document.getElementById('meta-nombre').value.trim();
+            const objetivo = getRawAmount(document.getElementById('meta-objetivo').value);
+            const plazo = document.getElementById('meta-plazo').value.trim() || "Sin plazo fijo";
+            if (!nombre || !objetivo) return alert('Completa los datos');
+            
+            const initialAportes = {};
+            initialAportes[getCurrentYearMonth()] = 0;
+
+            currentUser.metas.push({ id: Date.now().toString(), nombre, objetivo, aportes: initialAportes, plazo });
+            saveUserData(currentUser);
+            closeModal('modal-add-meta');
+            renderAll();
+        }
+
+        function changeAccountCurrency(val) {
+            currentUser.currency = val;
+            saveUserData(currentUser);
+            triggerHaptic();
+            renderAll();
+            alert(`Moneda actualizada a ${val}.`);
+        }
+
+        function renderBolsillos() {
+            const container = document.getElementById('bolsillos-list');
+            if (!currentUser.bolsillos || currentUser.bolsillos.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-5">Sin bolsillos creados.</p>`;
+                return;
+            }
+            container.innerHTML = currentUser.bolsillos.map(b => `
+                <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 flex justify-between items-center">
+                    <h4 class="text-xs font-bold text-white">${b.nombre}</h4>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-extrabold text-emerald-400">${formatMoney(b.saldo)}</span>
+                        <button onclick="deleteItem('bolsillos', '${b.id}')" title="Borrar bolsillo" class="text-slate-500 hover:text-rose-400 p-1 transition-all"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderDeudas() {
+            const container = document.getElementById('deudas-list');
+            if (currentUser.deudas.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-5">Sin deudas registradas.</p>`;
+                return;
+            }
+            container.innerHTML = currentUser.deudas.map(d => {
+                const totalCuotas = d.cuotasTotales || 12;
+                const pagadas = d.cuotasPagadas || 0;
+                const pct = Math.min(100, Math.round((pagadas / totalCuotas) * 100));
+
+                return `
+                    <div class="p-3 bg-slate-800 rounded-xl border border-slate-700 space-y-2">
+                        <div class="flex justify-between items-start">
+                            <div class="flex items-center gap-2">
+                                <button onclick="toggleCuotaDeuda('${d.id}')" class="w-5 h-5 rounded border ${d.pagadaEsteMes ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-600'} flex items-center justify-center">
+                                    ${d.pagadaEsteMes ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
+                                </button>
+                                <div>
+                                    <h4 class="text-xs font-bold text-white">${d.nombre}</h4>
+                                    <span class="text-[10px] text-indigo-300 block">Total Deuda: ${formatMoney(d.montoTotal || d.cuota * totalCuotas)}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="text-right">
+                                    <span class="text-xs font-extrabold text-rose-400 block">${formatMoney(d.cuota)} / mes</span>
+                                    <span class="text-[9px] ${d.pagadaEsteMes ? 'text-emerald-400 font-bold' : 'text-slate-400'}">${d.pagadaEsteMes ? 'Cuota pagada (Descontada)' : 'Cuota pendiente'}</span>
+                                </div>
+                                <button onclick="deleteItem('deudas', '${d.id}')" title="Borrar deuda" class="text-slate-500 hover:text-rose-400 p-1 transition-all"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1 pt-1 border-t border-slate-700/50">
+                            <div class="flex justify-between items-center text-[9px]">
+                                <span class="text-slate-400">${pagadas} de ${totalCuotas} cuotas pagadas</span>
+                                <span class="font-bold text-indigo-400">${pct}% completado</span>
+                            </div>
+                            <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
+                                <div class="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full rounded-full" style="width: ${pct}%"></div>
+                            </div>
+                            <span class="text-[9px] text-amber-400 font-bold block pt-0.5"><i class="fa-solid fa-clock mr-1"></i>Vencimiento: ${d.vencimiento || 'Pagar antes del 5 de cada mes'}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderSubs() {
+            const container = document.getElementById('subs-list');
+            const annual = currentUser.subs.reduce((sum, s) => sum + (s.monto * 12), 0);
+            document.getElementById('sub-annual-total').innerText = formatMoney(annual);
+            if (currentUser.subs.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-500 text-center py-5">Sin suscripciones registradas.</p>`;
+                return;
+            }
+            container.innerHTML = currentUser.subs.map(s => `
+                <div class="p-2.5 bg-slate-800 rounded-xl border border-slate-700 flex justify-between items-center">
+                    <div>
+                        <h4 class="text-xs font-bold text-white">${s.nombre}</h4>
+                        <span class="text-[9px] text-slate-400 block">Suscripción Mensual</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-indigo-300">${formatMoney(s.monto)} / mes</span>
+                        <button onclick="deleteItem('subs', '${s.id}')" title="Borrar suscripción" class="text-slate-500 hover:text-rose-400 p-1 transition-all"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function calcHonorarios() {
+            const bruto = getRawAmount(document.getElementById('hon-bruto').value);
+            const retencion = Math.round(bruto * 0.1375);
+            const liquido = bruto - retencion;
+            document.getElementById('hon-retencion').innerText = formatMoney(retencion);
+            document.getElementById('hon-liquido').innerText = formatMoney(liquido);
+        }
+
+        function saveIncomeSetting() {
+            const inc = getRawAmount(document.getElementById('setting-income-input').value);
+            if (!inc) return alert('Ingresa un monto válido.');
+            currentUser.income = inc;
+            saveUserData(currentUser);
+            triggerHaptic();
+            alert('Sueldo actualizado.');
+            renderAll();
+        }
+
+        function confirmCancelSubscription() {
+            if (confirm("¿Estás seguro de cancelar tu suscripción? Volverás al Plan Semilla Gratuito.")) {
+                currentUser.plan = 'Semilla (Gratis)';
+                saveUserData(currentUser);
+                triggerHaptic();
+                alert('Suscripción cancelada correctamente.');
+                initAppView();
+            }
+        }
+
+        function renderProfileModule() {
+            if (!currentUser) return;
+            document.getElementById('prof-val-name').innerText = currentUser.name;
+            document.getElementById('prof-val-rut').innerText = currentUser.rut;
+            document.getElementById('prof-val-email').innerText = currentUser.email;
+            document.getElementById('setting-currency-select').value = currentUser.currency || 'CLP';
+            document.getElementById('setting-income-input').value = new Intl.NumberFormat('es-CL').format(currentUser.income);
+            document.getElementById('sub-plan-name').innerText = `Plan ${currentUser.plan || 'Semilla (Gratis)'}`;
+        }
+
+        function showSettingsSubpage(subId) {
+            document.getElementById('settings-menu-list').classList.add('hidden');
+            document.getElementById(subId).classList.remove('hidden');
+            triggerHaptic();
+        }
+
+        function backToSettingsMenu() {
+            const subpages = ['subpage-perfil', 'subpage-ingresos', 'subpage-planes'];
+            subpages.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+            document.getElementById('settings-menu-list').classList.remove('hidden');
+            triggerHaptic();
+        }
+
+        function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+        function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            ensureAdminAccount();
+            const activeUser = localStorage.getItem('finanzapp_active_user');
+            if (activeUser && getUserData(activeUser)) {
+                currentUser = getUserData(activeUser);
+                verifyDataSchema();
+                initAppView();
+            }
+        });
+    </script>
+</body>
+</html>
